@@ -1,0 +1,105 @@
+CREATE TABLE corridas (
+	id		 SERIAL,
+	sitio	 VARCHAR(512) NOT NULL,
+	km		 INTEGER NOT NULL,
+	lim_inscritos INTEGER NOT NULL,
+	lim_data	 DATE NOT NULL,
+	data_corrida	 TIMESTAMP NOT NULL,
+	num_inscritos INTEGER NOT NULL DEFAULT 0,
+	PRIMARY KEY(id)
+);
+
+CREATE TABLE provas (
+	valor	 FLOAT(8) NOT NULL,
+	corridas_id INTEGER,
+	PRIMARY KEY(corridas_id)
+);
+
+CREATE TABLE treinos (
+	rep		 VARCHAR(255) NOT NULL,
+	dia_semana	 INTEGER,
+	treinadores_id INTEGER,
+	corridas_id	 INTEGER,
+	PRIMARY KEY(corridas_id)
+);
+
+CREATE TABLE hist_de_tempos (
+	tempo_seg		 INTEGER NOT NULL,
+	membros_utilizadores_id INTEGER NOT NULL,
+	provas_corridas_id	 INTEGER NOT NULL
+);
+
+CREATE TABLE hist_de_alt_preco (
+	id				 SERIAL,
+	preco				 FLOAT(8) NOT NULL,
+	dataalteracao			 TIMESTAMP NOT NULL,
+	administradores_utilizadores_id INTEGER NOT NULL,
+	provas_corridas_id		 INTEGER NOT NULL,
+	PRIMARY KEY(id)
+);
+
+CREATE TABLE mensagens (
+	id				 SERIAL,
+	assunto			 CHAR(255) NOT NULL,
+	texto				 CHAR(255) NOT NULL,
+	data				 TIMESTAMP NOT NULL,
+	administradores_utilizadores_id INTEGER NOT NULL,
+	PRIMARY KEY(id)
+);
+
+CREATE TABLE leituras (
+	vista			 BOOL NOT NULL,
+	membros_utilizadores_id	 INTEGER,
+	mensagens_id		 INTEGER,
+	PRIMARY KEY(membros_utilizadores_id,mensagens_id)
+);
+
+CREATE TABLE membros (
+	sexo		 VARCHAR(255) NOT NULL,
+	utilizadores_id INTEGER,
+	PRIMARY KEY(utilizadores_id)
+);
+
+CREATE TABLE administradores (
+	utilizadores_id INTEGER,
+	PRIMARY KEY(utilizadores_id)
+);
+
+CREATE TABLE utilizadores (
+	id	 SERIAL,
+	nome	 VARCHAR(512) NOT NULL,
+	email	 VARCHAR(512) UNIQUE NOT NULL,
+	password VARCHAR(512) NOT NULL,
+	username VARCHAR(512) UNIQUE NOT NULL,
+	PRIMARY KEY(id)
+);
+
+CREATE TABLE treinadores (
+	id	 SERIAL,
+	nome VARCHAR(512) NOT NULL,
+	PRIMARY KEY(id)
+);
+
+CREATE TABLE inscricoes (
+	pago			 BOOL NOT NULL,
+	datapagamento		 DATE,
+	precopago		 FLOAT(8) NOT NULL DEFAULT 0,
+	corridas_id		 INTEGER NOT NULL,
+	membros_utilizadores_id INTEGER NOT NULL
+);
+
+ALTER TABLE provas ADD CONSTRAINT provas_fk1 FOREIGN KEY (corridas_id) REFERENCES corridas(id);
+ALTER TABLE treinos ADD CONSTRAINT treinos_fk1 FOREIGN KEY (treinadores_id) REFERENCES treinadores(id);
+ALTER TABLE treinos ADD CONSTRAINT treinos_fk2 FOREIGN KEY (corridas_id) REFERENCES corridas(id);
+ALTER TABLE hist_de_tempos ADD CONSTRAINT hist_de_tempos_fk1 FOREIGN KEY (membros_utilizadores_id) REFERENCES membros(utilizadores_id);
+ALTER TABLE hist_de_tempos ADD CONSTRAINT hist_de_tempos_fk2 FOREIGN KEY (provas_corridas_id) REFERENCES provas(corridas_id);
+ALTER TABLE hist_de_alt_preco ADD CONSTRAINT hist_de_alt_preco_fk1 FOREIGN KEY (administradores_utilizadores_id) REFERENCES administradores(utilizadores_id);
+ALTER TABLE hist_de_alt_preco ADD CONSTRAINT hist_de_alt_preco_fk2 FOREIGN KEY (provas_corridas_id) REFERENCES provas(corridas_id);
+ALTER TABLE mensagens ADD CONSTRAINT mensagens_fk1 FOREIGN KEY (administradores_utilizadores_id) REFERENCES administradores(utilizadores_id);
+ALTER TABLE leituras ADD CONSTRAINT leituras_fk1 FOREIGN KEY (membros_utilizadores_id) REFERENCES membros(utilizadores_id);
+ALTER TABLE leituras ADD CONSTRAINT leituras_fk2 FOREIGN KEY (mensagens_id) REFERENCES mensagens(id);
+ALTER TABLE leituras ADD CONSTRAINT leituras_fk3 FOREIGN KEY (membros_utilizadores_id1) REFERENCES membros(utilizadores_id);
+ALTER TABLE membros ADD CONSTRAINT membros_fk1 FOREIGN KEY (utilizadores_id) REFERENCES utilizadores(id);
+ALTER TABLE administradores ADD CONSTRAINT administradores_fk1 FOREIGN KEY (utilizadores_id) REFERENCES utilizadores(id);
+ALTER TABLE inscricoes ADD CONSTRAINT inscricoes_fk1 FOREIGN KEY (corridas_id) REFERENCES corridas(id);
+ALTER TABLE inscricoes ADD CONSTRAINT inscricoes_fk2 FOREIGN KEY (membros_utilizadores_id) REFERENCES membros(utilizadores_id);
